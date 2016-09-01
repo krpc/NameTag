@@ -1,0 +1,6 @@
+bin
+obj
+ksp_lib
+GameData
+NameTag-*.zip
+*.userprefs

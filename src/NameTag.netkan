@@ -1,0 +1,9 @@
+{
+    "spec_version" : 1,
+    "identifier"   : "NameTag",
+    "$kref"        : "#/ckan/github/krpc/NameTag",
+    "name"         : "NameTag",
+    "abstract"     : "Tag parts with a string.",
+    "license"      : "GPL-3.0",
+    "$vref"        : "#/ckan/ksp-avc",
+}
