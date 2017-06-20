@@ -4,37 +4,33 @@ namespace NameTag
 {
     public class Window : MonoBehaviour
     {
-        KOSNameTag attachedModule;
-        Rect windowRect;
-        string tagValue;
+        private KOSNameTag attachedModule;
+        private Rect windowRect;
+        private string tagValue;
         // ReSharper disable RedundantDefaultFieldInitializer
-        bool wasFocusedOnce = false;
-        // "explicit", not "redundant".
-        int numberOfRepaints = 0;
-        // "explicit", not "redundant".
-        bool gameEventHooksExist = false;
-        // "explicit", not "redundant".
-        int myWindowId;
-        // must be unique for Unity to not mash two nametag windows togehter.
+        private bool wasFocusedOnce = false; // "explicit", not "redundant".
+        private int numberOfRepaints = 0; // "explicit", not "redundant".
+        private bool gameEventHooksExist = false; // "explicit", not "redundant".
+        private int myWindowId; // must be unique for Unity to not mash two nametag windows togehter.
 
         // ReSharper enable RedundantDefaultFieldInitializer
 
-        public void Invoke (KOSNameTag module, string oldValue)
+        public void Invoke(KOSNameTag module, string oldValue)
         {
             attachedModule = module;
             tagValue = oldValue;
-            myWindowId = GetInstanceID (); // Use the Id of this MonoBehaviour to guarantee unique window ID.
+            myWindowId = GetInstanceID(); // Use the Id of this MonoBehaviour to guarantee unique window ID.
 
-            Vector3 screenPos = GetViewportPosFor (attachedModule.part.transform.position);
+            Vector3 screenPos = GetViewportPosFor(attachedModule.part.transform.position);
 
             // screenPos is in coords from 0 to 1, 0 to 1, not screen pixel coords.
             // Transform it to pixel coords:
-            float xPixelPoint = screenPos.x * Screen.width;
-            float yPixelPoint = (1 - screenPos.y) * Screen.height;
+            float xPixelPoint = screenPos.x * UnityEngine.Screen.width;
+            float yPixelPoint = (1-screenPos.y) * UnityEngine.Screen.height;
             const float WINDOW_WIDTH = 200;
 
             // windowRect = new Rect(xPixelWindow, yPixelPoint, windowWidth, 130);
-            windowRect = new Rect (xPixelPoint, yPixelPoint, WINDOW_WIDTH, 130);
+            windowRect = new Rect(xPixelPoint, yPixelPoint, WINDOW_WIDTH, 130);
 
             // Please don't delete these.  They're not being used, but that's because we haven't
             // finished prettying up the interface with the tag line and so the coords aren't
@@ -46,10 +42,10 @@ namespace NameTag
             // tagLineRect = new Rect(xPixelPoint, yPixelPoint, tagLineWidth, 3);
             // SafeHouse.Logger.Log("tagLineRect = " + tagLineRect );
 
-            SetEnabled (true);
+            SetEnabled(true);
 
             if (HighLogic.LoadedSceneIsEditor)
-                attachedModule.part.SetHighlight (false, false);
+                attachedModule.part.SetHighlight(false, false);
 
         }
 
@@ -60,12 +56,12 @@ namespace NameTag
         /// </summary>
         /// <param name="whichPartWentAway">The callback is called for EVERY part
         /// that ever goes away, so we have to check if it's the right one</param>
-        public void GoAwayEventCallback (Part whichPartWentAway)
+        public void GoAwayEventCallback(Part whichPartWentAway)
         {
             if (whichPartWentAway != attachedModule.part)
                 return;
 
-            Close ();
+            Close();
         }
 
         /// <summary>
@@ -75,34 +71,30 @@ namespace NameTag
         /// That's why I wrapped every attempt to set enabled's value with this check, because KSP
         /// tries running my hooks in this class before Unity's ready for them.
         /// </summary>
-        void SetEnabled (bool newVal)
+        private void SetEnabled(bool newVal)
         {
             // ReSharper disable once RedundantCheckBeforeAssignment
             if (newVal != enabled)
                 enabled = newVal;
 
-            if (enabled) {
-                if (!gameEventHooksExist) {
-                    GameEvents.onPartDestroyed.Add (GoAwayEventCallback);
-                    GameEvents.onPartDie.Add (GoAwayEventCallback);
+            if (enabled)
+            {
+                if (! gameEventHooksExist)
+                {
+                    GameEvents.onPartDestroyed.Add(GoAwayEventCallback);
+                    GameEvents.onPartDie.Add(GoAwayEventCallback);
                     gameEventHooksExist = true;
                 }
-            } else {
-                if (gameEventHooksExist) {
-                    GameEvents.onPartDestroyed.Remove (GoAwayEventCallback);
-                    GameEvents.onPartDie.Remove (GoAwayEventCallback);
+            }
+            else
+            {
+                if (gameEventHooksExist)
+                {
+                    GameEvents.onPartDestroyed.Remove(GoAwayEventCallback);
+                    GameEvents.onPartDie.Remove(GoAwayEventCallback);
                     gameEventHooksExist = false;
                 }
             }
-        }
-
-        static Camera GetCurrentCamera ()
-        {
-            // man, KSP could really just use a simple "get whatever the current camera is" method:
-            return HighLogic.LoadedSceneIsEditor ?
-                       EditorLogic.fetch.editorCamera :
-                       (MapView.MapIsEnabled ?
-                           PlanetariumCamera.Camera : FlightCamera.fetch.mainCamera);
         }
 
         /// <summary>
@@ -113,85 +105,90 @@ namespace NameTag
         /// (0,0) to (1,1) and the Z coord is how far from the screen it is
         /// (-Z means behind you).
         /// </summary>
-        static Vector3 GetViewportPosFor (Vector3 v)
+        private Vector3 GetViewportPosFor( Vector3 v )
         {
-            return GetCurrentCamera ().WorldToViewportPoint (v);
+            return Utils.GetCurrentCamera().WorldToViewportPoint(v);
         }
 
-        public void OnGUI ()
+        public void OnGUI()
         {
             if (Event.current.type != EventType.Repaint)
                 ++numberOfRepaints;
 
-            if (!enabled)
+            if (! enabled)
                 return;
             if (HighLogic.LoadedSceneIsEditor)
-                EditorLogic.fetch.Lock (false, false, false, "NameTagLock");
+                EditorLogic.fetch.Lock(false, false, false, "KOSNameTagLock");
 
             GUI.skin = HighLogic.Skin;
-            GUILayout.Window (myWindowId, windowRect, DrawWindow, "nametag");
+            GUILayout.Window(myWindowId, windowRect, DrawWindow,"KOS nametag");
 
             // Ensure that the first time the window is made, it gets keybaord focus,
             // but allow the focus to leave the window after that:
             // The reason for the "number of repaints" check is that OnGUI has to run
             // through several initial passes before all the components are present,
             // and if you call FocusControl on the first few passes, it has no effect.
-            if (numberOfRepaints >= 2 && !wasFocusedOnce) {
-                GUI.FocusControl ("NameTagField");
+            if (numberOfRepaints >= 2 && ! wasFocusedOnce)
+            {
+                GUI.FocusControl("NameTagField");
                 wasFocusedOnce = true;
             }
         }
 
-        public void DrawWindow (int windowID)
+        public void DrawWindow( int windowID )
         {
-            if (!enabled)
+            if (! enabled)
                 return;
 
             Event e = Event.current;
-            if (e.type == EventType.KeyDown) {
+            if (e.type == EventType.KeyDown)
+            {
                 if (e.keyCode == KeyCode.Return ||
-                    e.keyCode == KeyCode.KeypadEnter) {
-                    e.Use ();
-                    attachedModule.TypingDone (tagValue);
-                    Close ();
+                    e.keyCode == KeyCode.KeypadEnter)
+                {
+                    e.Use();
+                    attachedModule.TypingDone(tagValue);
+                    Close();
                 }
             }
-            GUILayout.Label (attachedModule.part.name);
-            GUI.SetNextControlName ("NameTagField");
-            tagValue = GUILayout.TextField (tagValue, GUILayout.MinWidth (160f));
+            GUILayout.Label(attachedModule.part.name);
+            GUI.SetNextControlName("NameTagField");
+            tagValue = GUILayout.TextField( tagValue, GUILayout.MinWidth(160f));
 
-            GUILayout.BeginHorizontal ();
-            if (GUILayout.Button ("Cancel")) {
-                e.Use ();
-                Close ();
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Cancel"))
+            {
+                e.Use();
+                Close();
             }
-            if (GUILayout.Button ("Accept")) {
-                e.Use ();
-                attachedModule.TypingDone (tagValue);
-                Close ();
+            if (GUILayout.Button("Accept"))
+            {
+                e.Use();
+                attachedModule.TypingDone(tagValue);
+                Close();
             }
-            GUILayout.EndHorizontal ();
+            GUILayout.EndHorizontal();
 
             // Before going any further, suppress any remaining unprocessed clicks
             // so they don't end up causing the editor to detach parts:
             if (e.type == EventType.MouseDown || e.type == EventType.MouseUp || e.type == EventType.MouseDrag)
-                e.Use ();
+                e.Use();
         }
 
-        public void Close ()
+        public void Close()
         {
             if (HighLogic.LoadedSceneIsEditor)
-                EditorLogic.fetch.Unlock ("NameTagLock");
+                EditorLogic.fetch.Unlock("KOSNameTagLock");
 
-            SetEnabled (false);
+            SetEnabled(false);
 
             if (HighLogic.LoadedSceneIsEditor)
-                attachedModule.part.SetHighlight (false, false);
+                attachedModule.part.SetHighlight(false, false);
         }
 
-        public void OnDestroy ()
+        public void OnDestroy()
         {
-            SetEnabled (false);
+            SetEnabled(false);
         }
     }
 }
