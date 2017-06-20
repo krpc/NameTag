@@ -6,6 +6,7 @@ all:
 	mkdir -p GameData/NameTag
 	python tools/ksp-avc.py `tools/version.sh` `tools/ksp-version.sh` > GameData/NameTag/NameTag.version
 	cp LICENSE.md CHANGELOG.md src/bin/Release/NameTag.dll src/module-manager.cfg GameData/NameTag/
+	cp ModuleManager.2.8.0.dll GameData/
 	zip -r NameTag-`tools/version.sh`.zip GameData
 
 install:
