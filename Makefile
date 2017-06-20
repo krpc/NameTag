@@ -1,6 +1,7 @@
 .PHONY: all install clean
 
 all:
+	tools/update-assembly-info.sh
 	msbuild /warnaserror /nowarn:MSB3276,MSB3277 /p:Configuration=Release NameTag.sln
 	mkdir -p GameData/NameTag
 	python tools/ksp-avc.py `tools/version.sh` `tools/ksp-version.sh` > GameData/NameTag/NameTag.version
