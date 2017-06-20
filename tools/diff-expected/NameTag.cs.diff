@@ -1,0 +1,25 @@
+1,3c1
+< ﻿using kOS.Screen;
+< using kOS.Suffixed;
+< using UnityEngine;
+---
+> ﻿using UnityEngine;
+5c3
+< namespace kOS.Module
+---
+> namespace NameTag
+6a5
+>     // Note: name kept as KOSNameTag for backward compatibility
+9c8
+<         private KOSNameTagWindow typingWindow;
+---
+>         private Window typingWindow;
+34c33
+<             typingWindow = gameObject.AddComponent<KOSNameTagWindow>();
+---
+>             typingWindow = gameObject.AddComponent<Window>();
+51c50
+< }
+\ No newline at end of file
+---
+> }

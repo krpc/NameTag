@@ -1,0 +1,72 @@
+1d0
+< ﻿using kOS.Utilities;
+3,4d1
+< using kOS.Module;
+< using System;
+6,8c3,5
+< namespace kOS.Screen
+< {    
+<     public class KOSNameTagWindow : MonoBehaviour
+---
+> namespace NameTag
+> {
+>     public class Window : MonoBehaviour
+18c15
+<         
+---
+> 
+26c23
+<             
+---
+> 
+52c49
+<             
+---
+> 
+54c51
+<         
+---
+> 
+66c63
+<             
+---
+> 
+97,98c94,95
+<                     GameEvents.onPartDie.Remove(GoAwayEventCallback);                
+<                     gameEventHooksExist = false;                    
+---
+>                     GameEvents.onPartDie.Remove(GoAwayEventCallback);
+>                     gameEventHooksExist = false;
+115c112
+<         
+---
+> 
+120c117
+<             
+---
+> 
+128c125
+<             
+---
+> 
+145c142
+<             
+---
+> 
+180c177
+<         
+---
+> 
+185c182
+<             
+---
+> 
+191c188
+<         
+---
+> 
+197c194
+< }
+\ No newline at end of file
+---
+> }
