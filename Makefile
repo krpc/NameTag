@@ -2,6 +2,7 @@
 
 all:
 	tools/update-assembly-info.sh
+	wget -nc https://ksp.sarbian.com/jenkins/job/ModuleManager/127/artifact/ModuleManager.2.8.0.dll
 	msbuild /warnaserror /nowarn:MSB3276,MSB3277 /p:Configuration=Release NameTag.sln
 	mkdir -p GameData/NameTag
 	python tools/ksp-avc.py `tools/version.sh` `tools/ksp-version.sh` > GameData/NameTag/NameTag.version
